@@ -25,3 +25,9 @@ py stt.py
 1. `Whisper` : 辨識語音並轉成文字檔，依賴`ffmpeg`所以ffmpeg務必確實安裝
 2. `sounddevice` : 及時從麥克風錄音
 3. `scipy` : 將聲音資料儲存為`wav`檔
+
+## 展示影片&截圖
+
+1. Log提示(能自定義顏色)
+
+![Log展示](./assets/log.png)
