@@ -7,6 +7,9 @@ from openai import OpenAI
 import json
 from TTS.api import TTS
 from playsound import playsound
+import torch
+from datetime import datetime
+from huggingface_hub import delete_file
 
 load_dotenv(dotenv_path=".env")
 
@@ -16,7 +19,7 @@ CUSTOM_ROLE = open("./app/role/role_config.txt", "r", encoding="utf-8").read()
 
 # ======== 初始化 ========
 client = OpenAI(api_key=OPENAI_API_KEY)
-tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2") # 語音模型, default: model_name="tts_models/multilingual/multi-dataset/xtts_v2"
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", gpu=True) # 語音模型, default: model_name="tts_models/multilingual/multi-dataset/xtts_v2"
 
 # ======== sound-device 錄音設定 ========
 DURATION = 5  # 錄音時間（秒）
@@ -25,9 +28,15 @@ FILE_NAME = "./app/audio/input.wav"
 MEMORY_FILE = "./app/role/role_memory.json"
 
 # ======== TTS 設定 ========
+def get_timestamp_filename():
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    if os.path.exists(f"./app/audio/output_{timestamp}.wav"):
+        delete_file(f"./app/audio/output_{timestamp}.wav")
+    return f"./app/audio/output_{timestamp}.wav"
+
 TTS_SPEAKER_WAV = "./app/audio/speaker.mp3" # 模仿語音
 TTS_LANGUAGE = "zh" # 語言, default: "zh"
-TTS_OUTPUT_FILE = "./app/audio/output.wav" # 輸出音檔
+TTS_OUTPUT_FILE = get_timestamp_filename() # 輸出音檔
 TTS_TEMPERATURE = 0.3 # 控制隨機性
 
 # ======== 定義顏色代碼 ========
@@ -42,6 +51,8 @@ class Colors:
 
 def to_color(color_code, text):
     return f"{color_code}{text}{Colors.RESET}"
+
+print(to_color(Colors.GREEN, "GPU 是否可使用:"), torch.cuda.is_available())
 
 # ======== 錄音 ========
 def record_audio():

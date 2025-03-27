@@ -18,8 +18,7 @@ playsound==1.2.2
 python-dotenv==1.0.1
 
 # ==== torch & torchaudio（注意 CUDA or CPU）====
-torch==2.5.1
-torchaudio==2.5.1
+torchaudio==2.2.1
 
 # ==== GUI 圖片處理 ====
 Pillow==11.1.0

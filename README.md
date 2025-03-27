@@ -25,9 +25,14 @@ project_root/
 
 **環境準備**
 
-1. `Python` : 開發時使用的版本為 `3.11.3`，[點我前往下載 python-3.11.3](<https://www.python.org/downloads/release/python-3113/>)
-2. `ffmpeg` : [點我前往官網下載](<https://ffmpeg.org/download.html>)，載完後在電腦搜尋 `編輯系統環境變數`，找到 `PATH` 新增路徑並指定到剛剛下載的 `ffmpeg` 檔案裡的 `bin` 資料夾，設定完成後須重啟電腦使環境變數生效
-3. `GPT自訂義` ( 選擇性 ) : 在`app`建立 `role` 資料夾，並在資料夾內建立 `role_config.txt` 檔案，在檔案內可輸入自訂義的GPT描述
+1. `Python`(必要) : 開發時使用的版本為 `3.11.3`，[點我前往下載 python-3.11.3](<https://www.python.org/downloads/release/python-3113/>)
+2. `ffmpeg`(必要) : [點我前往官網下載](<https://ffmpeg.org/download.html>)，載完後在電腦搜尋 `編輯系統環境變數`，找到 `PATH` 新增路徑並指定到剛剛下載的 `ffmpeg` 檔案裡的 `bin` 資料夾，設定完成後須重啟電腦使環境變數生效
+3. `torch(支援GPU的版本)`(必要) :
+    
+    ```bash
+    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 -f https://download.pytorch
+    ```
+4. `GPT自訂義` ( 選擇性 ) : 在`app`建立 `role` 資料夾，並在資料夾內建立 `role_config.txt` 檔案，在檔案內可輸入自訂義的GPT描述
 
 **安裝所需套件**
 
