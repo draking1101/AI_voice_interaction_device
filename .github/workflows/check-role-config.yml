@@ -1,0 +1,23 @@
+name: Check Role Config Changes
+
+on:
+  pull_request:
+    branches: [ main ]  # 或其他你想要保護的分支
+    paths:
+      - 'role/role_config.txt'        # 監控的文件路徑
+
+jobs:
+  check-role-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # 這行很重要，獲取完整的 git 歷史
+          
+      - name: Check for role_config changes
+        run: |
+          if git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -q "role/role_config.txt"; then
+            echo "檢測到 role_config.txt 文件被修改"
+            echo "為了保持範例完整性，請不要修改 role_config.txt 文件"
+            exit 1
+          fi
