@@ -2,11 +2,30 @@ import whisper
 import os
 import sounddevice as sd
 import scipy.io.wavfile as wav
+from dotenv import load_dotenv
+from openai import OpenAI
+import json
+
+load_dotenv(dotenv_path=".env")
+
+# ======== 取得環境變量 ========
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# ======== 載入自定義角色 ========
+def load_custom_role(file_path="./role/role_config.txt"):
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+CUSTOM_ROLE = load_custom_role()
+
+# ======== 初始化 ========
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ======== sound-device 錄音設定 ========
 DURATION = 5  # 錄音時間（秒）
 SAMPLING_RATE = 44100  # 樣本率
-CHUNK_DURATION = 0.1  # 每次錄音的時間長度（秒）
+FILE_NAME = "./audio/test1.wav"
+MEMORY_FILE = "./role/role_memory.json"
 
 # ======== 定義顏色代碼 ========
 class Colors:
@@ -18,7 +37,6 @@ class Colors:
     CYAN = '\033[96m'
     RESET = '\033[0m'
 
-# ======== 轉換文字顏色 ========
 def to_color(color_code, text):
     return f"{color_code}{text}{Colors.RESET}"
 
@@ -45,16 +63,44 @@ def transcribe_audio(filename):
         print(to_color(Colors.RED, "❌ 喵嗚嗚找不到音檔: "), to_color(Colors.BLUE, filename))
         return None
 
+# ======== 載入記憶歷史 ========
+def load_memory():
+    if os.path.exists(MEMORY_FILE):
+        with open(MEMORY_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+# ======== 儲存記憶歷史 ========
+def save_memory(memory):
+    with open(MEMORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(memory, f, ensure_ascii=False, indent=2)
+
+# ======== 呼叫 GPT 回應 ========
+def get_openai_response(history):
+    response = client.chat.completions.create(
+        model = "gpt-4o",
+        messages = history
+    )
+    return response.choices[0].message.content
+
 # ======== 主程式 ========
-
-# 檢查音頻文件路徑
-FILE_NAME = "./audio/test1.wav"
-
 audio_data = record_audio()
 save_audio(audio_data, FILE_NAME)
+
 result = transcribe_audio(FILE_NAME)
 
 if result:
     print(to_color(Colors.PURPLE, "✅ 喵~ 辨識成功!"), to_color(Colors.BLUE, f"結果: {result}"))
+
+    memory = load_memory()
+    if not memory:
+        memory.append({"role": "system", "content": CUSTOM_ROLE})
+    memory.append({"role": "user", "content": result})
+
+    response = get_openai_response(memory)
+    print(to_color(Colors.PURPLE, "✅ 喵~ GPT 回應:"), to_color(Colors.BLUE, f"{response}"))
+
+    memory.append({"role": "assistant", "content": response})
+    save_memory(memory)
 else:
     print(to_color(Colors.RED, "❌ 喵! 辨識失敗!!"))

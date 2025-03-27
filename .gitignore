@@ -1,3 +1,7 @@
-# 忽略音頻和文字保存資料夾
+# 忽略本地開發時的檔案
 /audio
 /transcript
+/memory.json
+
+# 忽略 .env 文件
+.env
