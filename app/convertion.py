@@ -12,7 +12,7 @@ load_dotenv(dotenv_path=".env")
 
 # ======== 取得環境變量 ========
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-CUSTOM_ROLE = open("./role/role_config.txt", "r", encoding="utf-8").read()
+CUSTOM_ROLE = open("./app/role/role_config.txt", "r", encoding="utf-8").read()
 
 # ======== 初始化 ========
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -21,13 +21,13 @@ tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2") # 語音�
 # ======== sound-device 錄音設定 ========
 DURATION = 5  # 錄音時間（秒）
 SAMPLING_RATE = 44100  # 樣本率, default: 44100
-FILE_NAME = "./audio/input.wav"
-MEMORY_FILE = "./role/role_memory.json"
+FILE_NAME = "./app/audio/input.wav"
+MEMORY_FILE = "./app/role/role_memory.json"
 
 # ======== TTS 設定 ========
-TTS_SPEAKER_WAV = "./audio/speaker.mp3" # 模仿語音
+TTS_SPEAKER_WAV = "./app/audio/speaker.mp3" # 模仿語音
 TTS_LANGUAGE = "zh" # 語言, default: "zh"
-TTS_OUTPUT_FILE = "./audio/output.wav" # 輸出音檔
+TTS_OUTPUT_FILE = "./app/audio/output.wav" # 輸出音檔
 TTS_TEMPERATURE = 0.3 # 控制隨機性
 
 # ======== 定義顏色代碼 ========
@@ -99,25 +99,26 @@ def speak(text):
     playsound(TTS_OUTPUT_FILE)
 
 # ======== 主程式 ========
-audio_data = record_audio()
-save_audio(audio_data, FILE_NAME)
+def converstion():
+    audio_data = record_audio()
+    save_audio(audio_data, FILE_NAME)
 
-result = transcribe_audio(FILE_NAME)
+    result = transcribe_audio(FILE_NAME)
 
-if result:
-    print(to_color(Colors.PURPLE, "✅ 喵~ 辨識成功!"), to_color(Colors.BLUE, f"結果: {result}"))
+    if result:
+        print(to_color(Colors.PURPLE, "✅ 喵~ 辨識成功!"), to_color(Colors.BLUE, f"結果: {result}"))
 
-    memory = load_memory()
-    if not memory:
-        memory.append({"role": "system", "content": CUSTOM_ROLE})
-    memory.append({"role": "user", "content": result})
+        memory = load_memory()
+        if not memory:
+            memory.append({"role": "system", "content": CUSTOM_ROLE})
+        memory.append({"role": "user", "content": result})
 
-    response = get_openai_response(memory)
-    print(to_color(Colors.PURPLE, "✅ 喵~ GPT 回應:"), to_color(Colors.BLUE, f"{response}"))
+        response = get_openai_response(memory)
+        print(to_color(Colors.PURPLE, "✅ 喵~ GPT 回應:"), to_color(Colors.BLUE, f"{response}"))
 
-    memory.append({"role": "assistant", "content": response})
-    save_memory(memory)
+        memory.append({"role": "assistant", "content": response})
+        save_memory(memory)
 
-    speak(response)
-else:
-    print(to_color(Colors.RED, "❌ 喵! 辨識失敗!!"))
+        speak(response)
+    else:
+        print(to_color(Colors.RED, "❌ 喵! 辨識失敗!!"))

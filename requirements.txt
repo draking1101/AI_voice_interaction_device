@@ -1,9 +1,25 @@
-sounddevice
-scipy
+# ==== 音訊處理 ====
+sounddevice==0.5.1
+scipy==1.15.2
+
+# ==== 語音辨識（Whisper） ====
 openai-whisper @ git+https://github.com/openai/whisper.git
-openai
-python-dotenv
+
+# ==== OpenAI GPT ====
+openai==1.14.3
+
+# ==== 語音合成（XTTS） ====
+TTS==0.22.0
+
+# ==== 播放音效 ====
+playsound==1.2.2
+
+# ==== 環境變數管理 ====
+python-dotenv==1.0.1
+
+# ==== torch & torchaudio（注意 CUDA or CPU）====
 torch==2.5.1
 torchaudio==2.5.1
-TTS
-playsound==1.2.2
+
+# ==== GUI 圖片處理 ====
+Pillow==11.1.0

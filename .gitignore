@@ -1,8 +1,8 @@
 # 忽略本地開發時的檔案
-/audio
-/transcript
-/memory.json
-/role
+/app/__pycache__
+/app/audio
+/app/role
+/app/transcript
 
 # 忽略 .env 文件
 .env
