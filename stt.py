@@ -5,27 +5,30 @@ import scipy.io.wavfile as wav
 from dotenv import load_dotenv
 from openai import OpenAI
 import json
+from TTS.api import TTS
+from playsound import playsound
 
 load_dotenv(dotenv_path=".env")
 
 # ======== 取得環境變量 ========
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-# ======== 載入自定義角色 ========
-def load_custom_role(file_path="./role/role_config.txt"):
-    with open(file_path, "r", encoding="utf-8") as f:
-        return f.read()
-
-CUSTOM_ROLE = load_custom_role()
+CUSTOM_ROLE = open("./role/role_config.txt", "r", encoding="utf-8").read()
 
 # ======== 初始化 ========
 client = OpenAI(api_key=OPENAI_API_KEY)
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2") # 語音模型, default: model_name="tts_models/multilingual/multi-dataset/xtts_v2"
 
 # ======== sound-device 錄音設定 ========
 DURATION = 5  # 錄音時間（秒）
-SAMPLING_RATE = 44100  # 樣本率
-FILE_NAME = "./audio/test1.wav"
+SAMPLING_RATE = 44100  # 樣本率, default: 44100
+FILE_NAME = "./audio/input.wav"
 MEMORY_FILE = "./role/role_memory.json"
+
+# ======== TTS 設定 ========
+TTS_SPEAKER_WAV = "./audio/speaker.mp3" # 模仿語音
+TTS_LANGUAGE = "zh" # 語言, default: "zh"
+TTS_OUTPUT_FILE = "./audio/output.wav" # 輸出音檔
+TTS_TEMPERATURE = 0.3 # 控制隨機性
 
 # ======== 定義顏色代碼 ========
 class Colors:
@@ -83,6 +86,18 @@ def get_openai_response(history):
     )
     return response.choices[0].message.content
 
+# ======== 生成語音 ========
+def speak(text):
+    tts.tts_to_file(
+        text=text,
+        speaker_wav=TTS_SPEAKER_WAV,
+        language=TTS_LANGUAGE,
+        file_path=TTS_OUTPUT_FILE,
+        split_sentences=True, # 長句切分
+        temperature=TTS_TEMPERATURE
+    )
+    playsound(TTS_OUTPUT_FILE)
+
 # ======== 主程式 ========
 audio_data = record_audio()
 save_audio(audio_data, FILE_NAME)
@@ -102,5 +117,7 @@ if result:
 
     memory.append({"role": "assistant", "content": response})
     save_memory(memory)
+
+    speak(response)
 else:
     print(to_color(Colors.RED, "❌ 喵! 辨識失敗!!"))
